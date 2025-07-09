@@ -1,0 +1,176 @@
+:root {
+      --page-bg-color: #f8f9fa;
+      --page-text-color: #333;
+
+      --control-bg-color: #f8f9fa;
+      --control-text-color: buttontext;
+      --control-hover-bg-color: #f0f0f0;
+      --control-hover-text-color: #bbb;
+
+      --control-disabled-bg-color: #f8f9fa;
+      --control-disabled-text-color: #bbb;
+
+      --note-bg-color: #fff;
+      --note-placeholer-color: #bbb;
+      --note-link-color: #616161;
+
+      --attribution-color: #bbb;
+
+      --code-bg-color: #e5e4e2;
+      --code-text-color: #333;
+
+      --audio-recording-controls-bg-color: #e5e4e2;
+      --audio-recording-controls-text-color: #333;
+
+      --table-border-color: #000;
+
+      /* text colors */
+      --note-text-color-1: #000000;
+      /* black */
+      --note-text-color-2: #FF3B30;
+      /* red */
+      --note-text-color-3: #FF9500;
+      /* orange */
+      --note-text-color-4: #FFCC00;
+      /* yellow */
+      --note-text-color-5: #4CD964;
+      /* green */
+      --note-text-color-6: #5AC8FA;
+      /* light-blue */
+      --note-text-color-7: #007AFF;
+      /* dark-blue */
+      --note-text-color-8: #5856D6;
+      /* violet */
+
+      /* highlight background colors */
+      --note-highlight-color-1: #000000;
+      /* red */
+      --note-highlight-color-2: #FF3B30;
+      /* orange */
+      --note-highlight-color-3: #FF9500;
+      /* yellow */
+      --note-highlight-color-4: #FFCC00;
+      /* green */
+      --note-highlight-color-5: #4CD964;
+      /* light-blue */
+      --note-highlight-color-6: #5AC8FA;
+      /* violet */
+      --note-highlight-color-7: #007AFF;
+      /* dark-blue */
+      --note-highlight-color-8: #5856D6;
+      /* purple */
+    }
+
+    /* dark mode */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page-bg-color: #3a3a3a;
+        --page-text-color: #ddd;
+
+        --control-bg-color: #444;
+        --control-text-color: #aaa;
+        --control-hover-bg-color: #666;
+        --control-hover-text-color: #eee;
+
+        --control-disabled-bg-color: #444;
+        --control-disabled-text-color: #666;
+
+        --note-bg-color: #333;
+        --note-placeholder-color: #555;
+
+        --code-bg-color: #36454f;
+        --code-text-color: #fff;
+
+        --audio-recording-controls-bg-color: #36454f;
+        --audio-recording-controls-text-color: #fff;
+
+        --table-border-color: #fff;
+
+        /* text colors */
+        --note-text-color-1: #FAFAFA;
+        /* black / white */
+        --note-text-color-2: #FF3B30;
+        /* red */
+        --note-text-color-3: #FF9500;
+        /* orange */
+        --note-text-color-4: #FFCC00;
+        /* yellow */
+        --note-text-color-5: #4CD964;
+        /* green */
+        --note-text-color-6: #5AC8FA;
+        /* light-blue */
+        --note-text-color-7: #007AFF;
+        /* dark-blue */
+        --note-text-color-8: #5856D6;
+        /* violet */
+
+        /* highlight background colors */
+        --note-highlight-color-1: #FAFAFA;
+        /* red */
+        --note-highlight-color-2: #FF3B30;
+        /* orange */
+        --note-highlight-color-3: #FF9500;
+        /* yellow */
+        --note-highlight-color-4: #FFCC00;
+        /* green */
+        --note-highlight-color-5: #4CD964;
+        /* light-blue */
+        --note-highlight-color-6: #5AC8FA;
+        /* violet */
+        --note-highlight-color-7: #007AFF;
+        /* dark-blue */
+        --note-highlight-color-8: #5856D6;
+        /* purple */
+      }
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: var(--page-bg-color);
+      color: var(--page-text-color);
+      margin: 0;
+      padding: 40px;
+      /*targeting Chrome & Safari*/
+      display: -webkit-flex;
+      /*targeting IE10*/
+      display: -ms-flex;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .editor-container {
+      width: 100%;
+      max-width: 90%;
+      background: var(--note-bg-color);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .file-title {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      padding: 0px 15px;
+      outline: none;
+      border: none;
+      background: transparent;
+    }
+
+    .file-title:empty::before {
+      content: "Write your title here...";
+      color: var(--note-placeholder-color);
+      display: block;
+    }
+
+    .note-dates {
+      font-size: 14px;
+      font-weight: normal;
+      margin-bottom: 15px;
+      padding: 0px 15px;
+      outline: none;
+      border: none;
+      background: transparent;
+      color: grey;
+    }
