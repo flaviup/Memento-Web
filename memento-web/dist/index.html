@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memento Note</title>
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%20viewBox%3D%220%200%20100%20100%22%3E%0A%20%20%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2220%22%20fill%3D%22black%22%2F%3E%0A%20%20%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-size%3D%2260%22%20font-weight%3D%22bold%22%20text-anchor%3D%22middle%22%20fill%3D%22white%22%20font-family%3D%22Arial%2C%20sans-serif%22%20dominant-baseline%3D%22central%22%3EN.%3C%2Ftext%3E%0A%3C%2Fsvg%3E" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mathup/dist/mathup.css" class="math-loading-style"/>
+  <style>
+    #editor {
+      border-radius: 12px;
+      padding: 15px;
+      min-height: 250px;
+      outline: none;
+      font-size: 16px;
+      line-height: 1.6;
+      /* background: #f4f4f4; */
+    }
+
+    #editor p {
+      margin-top: 0.5em;
+      margin-bottom: 0.5em;
+      white-space: break-spaces;
+      overflow-wrap: break-word;
+    }
+
+    #editor a {
+      color: var(--note-link-color);
+      text-decoration: none;
+      font-weight: 800;
+      transition: all 0.2s ease-in-out;
+      border-bottom: 2px solid transparent;
+    }
+
+    #editor a:hover {
+      border-bottom: 2px solid var(--note-link-color);
+      color: var(--note-link-color);
+    }
+
+    #editor pre code {
+      margin-top: 0.5em;
+      margin-bottom: 0.5em;
+      background: var(--code-bg-color);
+      color: var(--code-text-color);
+      display: block;
+      margin: 0;
+      padding: 8px;
+      border-radius: 6px;
+      white-space: pre-line;
+      overflow-wrap: break-word;
+    }
+
+    #footer {
+      text-align: center;
+      margin-top: 20px;
+      color: var(--attribution-color);
+    }
+
+    #footer a {
+      text-decoration: none;
+      color: var(--attribution-color);
+    }
+
+    .non-selectable {
+      user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      -webkit-touch-callout: none;
+      -o-user-select: none;
+      -moz-user-select: none;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+    }
+
+    audio {
+      width: 100%;
+      display: block;
+    }
+
+    video {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+    }
+
+    .image-link {
+      margin: 10px 0;
+    }
+
+    .video-link {
+      margin: 10px 0;
+    }
+
+    .audio-link {
+      margin: 10px 0;
+    }
+
+    .embedded-local-image {
+      margin: 10px 0;
+    }
+
+    .embedded-local-audio {
+      margin: 10px 0;
+    }
+
+    .embedded-content {
+      margin: 10px 0;
+    }
+
+    .embedded-math {
+      margin: 10px 0;
+    }
+
+    .embedded-math mrow,
+    .embedded-math math {
+      font-size: 28px;
+    }
+
+    .embedded-local-epub {
+      margin: 20px 0;
+    }
+
+    .embedded-local-pdf {
+      margin: 20px 0;
+    }
+
+    .pdf-link {
+      margin: 20px 0;
+    }
+
+    .embedded-table {
+      margin: 10px 0;
+    }
+
+    .embedded-table table {
+      width: 100%;
+      height: auto;
+      padding: 0 0;
+      margin: 0 0;
+      text-align: left;
+      table-layout: fixed;
+      border: 1px solid var(--table-border-color);
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 6px;
+    }
+
+    .embedded-table table th,
+    .embedded-table table td {
+      overflow: hidden;
+      margin: 0 0;
+      padding: 0 8px;
+      white-space: break-spaces;
+      overflow-wrap: break-word;
+    }
+
+    .embedded-table table th:not(:last-child),
+    .embedded-table table td:not(:last-child) {
+      border-right: 1px solid var(--table-border-color);
+    }
+
+    .embedded-table table > thead > tr:not(:last-child) > th,
+    .embedded-table table > tbody > tr:not(:last-child) > td {
+      border-bottom: 1px solid var(--table-border-color);
+    }
+
+    .embedded-table table > thead:not(:last-child) > tr:last-child > th {
+      border-bottom: 1px solid var(--table-border-color);
+    }
+
+    .epub-loading::before {
+      content: "ePUB document is loading...";
+      display: block;
+      color: var(--note-placeholer-color);
+      margin: 0;
+    }
+
+    .pdf-loading::before {
+      content: "PDF document is loading...";
+      display: block;
+      color: var(--note-placeholer-color);
+      margin: 0;
+    }
+
+    .thin-line::before {
+      content: "";
+      display: block;
+      width: 100%;
+      height: 1px;
+      background-color: var(--control-bg-color);
+      color: var(--control-text-color);
+      margin: 10px 0;
+    }
+
+    .embedded-local-epub,
+    .embedded-local-pdf,
+    .embedded-local-image,
+    .embedded-local-audio,
+    .embedded-content,
+    .embedded-math,
+    .embedded-table,
+    .image-link,
+    .audio-link,
+    .video-link,
+    .pdf-link,
+    .audio-recording {
+      width: 100%;
+      height: auto;
+      display: block;
+      position: relative;
+    }
+
+    math {
+      display: inline-flex;
+      flex-wrap: wrap;
+      flex-direction: row;
+      gap: 8px;
+      justify-content: flex-start; /*center*/
+      align-items: baseline;
+    }
+
+    .audio-recording {
+      margin: 20px 0;
+    }
+  </style>
+  <style>
+    small {
+      display: block;
+    }
+
+    .xlarge-text {
+      font-size: 32px;
+    }
+
+    .large-text {
+      font-size: 24px;
+    }
+
+    .medium-text {
+      font-size: 16px;
+    }
+
+    .small-text {
+      font-size: 12px;
+    }
+
+    .left-text {
+      text-align: left;
+    }
+
+    .center-text {
+      text-align: center;
+    }
+
+    .right-text {
+      text-align: right;
+    }
+
+    .justify-text {
+      text-align: justify;
+    }
+
+    .left-align {
+      /*targeting Chrome & Safari*/
+      display: -webkit-flex;
+      /*targeting IE10*/
+      display: -ms-flex;
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+    }
+
+    .center-align {
+      /*targeting Chrome & Safari*/
+      display: -webkit-flex;
+      /*targeting IE10*/
+      display: -ms-flex;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+    }
+
+    .right-align {
+      /*targeting Chrome & Safari*/
+      display: -webkit-flex;
+      /*targeting IE10*/
+      display: -ms-flex;
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
+    }
+
+    .justify-align,
+    .justify-align math {
+      /*targeting Chrome & Safari*/
+      display: -webkit-flex;
+      /*targeting IE10*/
+      display: -ms-flex;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    .justify-align math {
+      gap: auto;
+    }
+
+    .mobile-only {
+      display: none;
+    }
+
+    @media (max-width: 800px) {
+      body {
+        padding: 10px !important;
+      }
+
+      .editor-container {
+        max-width: 98%;
+        padding: 4px !important;
+      }
+
+      .mobile-only {
+        display: block !important;
+      }
+
+      .no-mobile {
+        display: none !important;
+      }
+    }
+
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+
+      .editor-container {
+        width: 100%;
+        max-width: 100%;
+        box-shadow: none;
+      }
+
+      .embedded-local-audio,
+      .audio-link,
+      .audio-recording {
+        display: none !important;
+      }
+    }
+  </style>
+  <script type="module" crossorigin src="/assets/index-D_vFDcVJ.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-DTLd3bNe.css">
+</head>
+<body>
+  <div class="editor-container">
+    <div id="filename" contenteditable="plaintext-only" class="file-title"></div>
+    <div id="noteDates" contenteditable="false" class="note-dates"></div>
+    <div class="top-container">
+      <div id="toolbar" class="no-print">
+        <button id="btnH1" class="no-mobile" title="Extra large text">XL</button>
+        <button id="btnH2" class="no-mobile" title="Large text">L</button>
+        <button id="btnM" class="no-mobile" title="Medium text">M</button>
+        <button id="btnS" class="no-mobile" title="Small text">S</button>
+
+        <button id="btnB" title="Select a text to make bold" disabled><b>B</b></button>
+        <button id="btnI" title="Select a text to make italic" disabled><i>I</i></button>
+        <button id="btnU" title="Select a text to underline" disabled><u>U</u></button>
+        <button id="btnStrikethrough" title="Select a text to strikethrough" disabled>Ꞩ</button>
+
+        <div class="dropdown no-mobile">
+          <button id="btnTextColorMenu" title="Select a text to colorize" disabled>Color</button>
+          <div id="textColorDropdown" class="dropdown-content">
+            <div class="swatch-grid">
+              <button id="btnTextColor1" class="color-swatch" style="background: var(--note-text-color-1);"
+                onmousedown="event.preventDefault();"></button>
+              <button id="btnTextColor2" class="color-swatch" style="background: var(--note-text-color-2);"
+                onmousedown="event.preventDefault();"></button>
+              <button id="btnTextColor3" class="color-swatch" style="background: var(--note-text-color-3);"
+                onmousedown="event.preventDefault();"></button>
+              <button id="btnTextColor4" class="color-swatch" style="background: var(--note-text-color-4);"
+                onmousedown="event.preventDefault();"></button>
+              <button id="btnTextColor5" class="color-swatch" style="background: var(--note-text-color-5);"
+                onmousedown="event.preventDefault();"></button>
+              <button id="btnTextColor6" class="color-swatch" style="background: var(--note-text-color-6);"
+                onmousedown="event.preventDefault();"></button>
+              <button id="btnTextColor7" class="color-swatch" style="background: var(--note-text-color-7);"
+                onmousedown="event.preventDefault();"></button>
+              <button id="btnTextColor8" class="color-swatch" style="background: var(--note-text-color-8);"
+                onmousedown="event.preventDefault();"></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Highlight Color Dropdown -->
+        <div class="dropdown no-mobile">
+          <button id="btnTextHighlightMenu" title="Select a text to highlight" disabled>Highlight</button>
+          <div id="highlightDropdown" class="dropdown-content">
+            <div class="swatch-grid">
+              <button id="btnTextHighlight1" class="color-swatch" style="background: var(--note-highlight-color-1);"
+                onmousedown="event.preventDefault();"></button>
+              <button id="btnTextHighlight2" class="color-swatch" style="background: var(--note-highlight-color-2);"
+                onmousedown="event.preventDefault();"></button>
+              <button id="btnTextHighlight3" class="color-swatch" style="background: var(--note-highlight-color-3);"
+                onmousedown="event.preventDefault();"></button>
+              <button id="btnTextHighlight4" class="color-swatch" style="background: var(--note-highlight-color-4);"
+                onmousedown="event.preventDefault();"></button>
+              <button id="btnTextHighlight5" class="color-swatch" style="background: var(--note-highlight-color-5);"
+                onmousedown="event.preventDefault();"></button>
+              <button id="btnTextHighlight6" class="color-swatch" style="background: var(--note-highlight-color-6);"
+                onmousedown="event.preventDefault();"></button>
+              <button id="btnTextHighlight7" class="color-swatch" style="background: var(--note-highlight-color-7);"
+                onmousedown="event.preventDefault();"></button>
+              <button id="btnTextHighlight8" class="color-swatch" style="background: var(--note-highlight-color-8);"
+                onmousedown="event.preventDefault();"></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Font Size Dropdown -->
+        <div class="text-dropdown no-mobile">
+          <button id="btnFontScaleMenu" title="Select a text to change scale" disabled><b>T</b></button>
+          <div id="fontScaleDropdown" class="text-dropdown-content">
+            <div class="text">
+              <button id="btnFontScale1" title="25%">25%</button>
+              <button id="btnFontScale2" title="33.33%">33.33%</button>
+              <button id="btnFontScale3" title="50%">50%</button>
+              <button id="btnFontScale4" title="66.66%">66.66%</button>
+              <button id="btnFontScale5" title="75%">75%</button>
+              <button id="btnFontScale6" title="125%">125%</button>
+              <button id="btnFontScale7" title="150%">150%</button>
+              <button id="btnFontScale8" title="175%">175%</button>
+              <button id="btnFontScale9" title="200%">200%</button>
+              <button id="btnFontScale10" title="250%">250%</button>
+              <button id="btnFontScale11" title="300%">300%</button>
+              <button id="btnFontScale12" title="350%">350%</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-dropdown no-mobile">
+          <button id="btnAlign" title="Alignment">Align</button>
+          <div id="alignDropdown" class="text-dropdown-content">
+            <button id="btnLeftTextAlign" title="Align to the left">Left</button>
+            <button id="btnCenterTextAlign" title="Align to the center">Center</button>
+            <button id="btnRightTextAlign" title="Align to the right">Right</button>
+            <button id="btnJustifyTextAlign" title="Justify text">Justify</button>
+          </div>
+        </div>
+
+        <div class="page-dropdown-toolbar-item mobile-only">
+          <button id="mbtnStyle" title="Styling">Style</button>
+        </div>
+
+        <div id="splitbar">|</div>
+        <button id="btnText" title="Add text">📝</button>
+        <button id="btnCode" title="Add source code text">🖥</button>
+
+        <div class="text-dropdown no-mobile">
+          <button id="btnLinks" title="Insert links">🔗</button>
+          <div id="linksDropdown" class="text-dropdown-content">
+            <button id="btnLinkText" title="Select a text to make link" disabled>🌎 Text Link</button>
+            <button id="btnLinkImage" title="Insert image link">📷 Image Link</button>
+            <button id="btnLinkAudio" title="Insert audio link">🔈 Audio Link</button>
+            <button id="btnLinkVideo" title="Insert video link">🎞 Video Link</button>
+            <button id="btnLinkPdf" title="Insert PDF file link">📕 PDF Link</button>
+          </div>
+        </div>
+
+        <div class="text-dropdown no-mobile">
+          <button id="btnEmbed" title="Embed contents">📎</button>
+          <div id="embedDropdown" class="text-dropdown-content">
+            <button id="btnEmbedWeb" title="Embed web page or HTML object">🌎 Web</button>
+
+            <div class="fileUpload">
+              <label for="imageUpload" title="Embed image file">📷 Image</label>
+              <input type="file" id="imageUpload" accept="image/*" onclick="this.value = null">
+            </div>
+
+            <div class="fileUpload">
+              <label for="audioUpload" title="Embed audio file">🔈 Audio</label>
+              <input type="file" id="audioUpload" accept="audio/*" onclick="this.value = null">
+            </div>
+
+            <div class="fileUpload">
+              <label for="pdfUpload" title="Embed PDF file">📕 PDF</label>
+              <input type="file" id="pdfUpload" accept=".pdf" onclick="this.value = null">
+            </div>
+
+            <div class="fileUpload">
+              <label for="epubUpload" title="Embed ePub file">📖 ePub</label>
+              <input type="file" id="epubUpload" accept=".epub" onclick="this.value = null">
+            </div>
+          </div>
+        </div>
+
+        <button id="btnRecordAudio" title="Record audio">🎤</button>
+        <button id="btnEmbedMath" class="no-mobile" title="Insert math expression">Σ</button>
+
+        <div class="text-dropdown no-mobile">
+          <button id="btnTable" title="Add table">Table</button>
+          <div id="tableDropdown" class="text-dropdown-content">
+            <button id="btnSimpleTable" title="Add simple table">Simple Table</button>
+            <button id="btnHeadlessTable" title="Add headless table">Headless Table</button>
+          </div>
+        </div>
+
+        <div class="page-dropdown-toolbar-item mobile-only">
+          <button id="mbtnInsert" title="Insert objects">Insert</button>
+        </div>
+
+        <div id="splitbar">|</div>
+        <button id="btnUndo" disabled title="Undo">↩</button>
+        <button id="btnRedo" disabled title="Redo">↪</button>
+
+        <div id="splitbar" style="margin-left: auto;">|</div>
+
+        <div class="text-dropdown no-mobile">
+          <button id="btnSaveMenu" title="Save or share">💾</button>
+          <div id="saveDropdown" class="text-dropdown-content">
+            <button id="btnSave">Save</button>
+            <button id="btnSaveTo">Save To...</button>
+            <button id="btnShare">Share</button>
+            <button id="btnSaveReadOnly">Save as Read-Only</button>
+            <button id="btnSaveToReadOnly">Save To as Read-Only</button>
+            <button id="btnShareReadOnly">Share as Read-Only</button>
+          </div>
+        </div>
+
+        <div class="page-dropdown-toolbar-item mobile-only">
+          <button id="mbtnSaveMenu" title="Save or share">💾</button>
+        </div>
+      </div>
+      <div id="recordingBar" class="hidden" aria-hidden="true"></div>
+    </div>
+    <div id="editorContainer" class="thin-line">
+      <div id="editor" contenteditable="true">
+        <p id="text28096aea6fa9cc5d10934d24509e2c83" class="text-block justify-text"><br/></p>
+      </div>
+    </div>
+    <div id="footer">
+      <small><a href="https://github.com/flaviup">flaviup@github.com</a></small>
+      <br/>
+      <small>Memento <div id="version" style="display: inline">1.0.20250708</div></small>
+    </div>
+    <div id="styleDropdown" class="page-dropdown">
+      <div class="page-dropdown-title">Style</div>
+      <div class="page-dropdown-item">
+        <button id="mbtnFontSizeMenu" class="page-dropdown-header" title="Change text size">Font Sizing</button>
+        <div class="page-dropdown-content">
+          <button id="mbtnH1" title="Extra large text">Extra Large</button>
+          <button id="mbtnH2" title="Large text">Large</button>
+          <button id="mbtnM" title="Medium text">Medium</button>
+          <button id="mbtnS" title="Small text">Small</button>
+        </div>
+      </div>
+      <div class="page-dropdown-item">
+        <button id="mbtnFontScaleMenu" class="page-dropdown-header" title="Select a text to change scale" disabled>Font Scaling</button>
+        <div class="page-dropdown-content">
+          <button id="mbtnFontScale1" title="25%">25%</button>
+          <button id="mbtnFontScale2" title="33.33%">33.33%</button>
+          <button id="mbtnFontScale3" title="50%">50%</button>
+          <button id="mbtnFontScale4" title="66.66%">66.66%</button>
+          <button id="mbtnFontScale5" title="75%">75%</button>
+          <button id="mbtnFontScale6" title="125%">125%</button>
+          <button id="mbtnFontScale7" title="150%">150%</button>
+          <button id="mbtnFontScale8" title="175%">175%</button>
+          <button id="mbtnFontScale9" title="200%">200%</button>
+          <button id="mbtnFontScale10" title="250%">250%</button>
+          <button id="mbtnFontScale11" title="300%">300%</button>
+          <button id="mbtnFontScale12" title="350%">350%</button>
+        </div>
+      </div>
+      <div class="page-dropdown-item">
+        <button id="mbtnTextColorMenu" class="page-dropdown-header" title="Select a text to colorize" disabled>Text Color</button>
+        <div class="page-dropdown-content">
+          <div class="swatch-grid">
+            <button id="mbtnTextColor1" class="color-swatch" style="background: var(--note-text-color-1);"
+              onmousedown="event.preventDefault();"></button>
+            <button id="mbtnTextColor2" class="color-swatch" style="background: var(--note-text-color-2);"
+              onmousedown="event.preventDefault();"></button>
+            <button id="mbtnTextColor3" class="color-swatch" style="background: var(--note-text-color-3);"
+              onmousedown="event.preventDefault();"></button>
+            <button id="mbtnTextColor4" class="color-swatch" style="background: var(--note-text-color-4);"
+              onmousedown="event.preventDefault();"></button>
+            <button id="mbtnTextColor5" class="color-swatch" style="background: var(--note-text-color-5);"
+              onmousedown="event.preventDefault();"></button>
+            <button id="mbtnTextColor6" class="color-swatch" style="background: var(--note-text-color-6);"
+              onmousedown="event.preventDefault();"></button>
+            <button id="mbtnTextColor7" class="color-swatch" style="background: var(--note-text-color-7);"
+              onmousedown="event.preventDefault();"></button>
+            <button id="mbtnTextColor8" class="color-swatch" style="background: var(--note-text-color-8);"
+              onmousedown="event.preventDefault();"></button>
+          </div>
+        </div>
+      </div>
+      <div class="page-dropdown-item">
+        <button id="mbtnTextHighlightMenu" class="page-dropdown-header" title="Select a text to highlight" disabled>Highlight Color</button>
+        <div class="page-dropdown-content">
+          <div class="swatch-grid">
+            <button id="mbtnTextHighlight1" class="color-swatch" style="background: var(--note-highlight-color-1);"
+              onmousedown="event.preventDefault();"></button>
+            <button id="mbtnTextHighlight2" class="color-swatch" style="background: var(--note-highlight-color-2);"
+              onmousedown="event.preventDefault();"></button>
+            <button id="mbtnTextHighlight3" class="color-swatch" style="background: var(--note-highlight-color-3);"
+              onmousedown="event.preventDefault();"></button>
+            <button id="mbtnTextHighlight4" class="color-swatch" style="background: var(--note-highlight-color-4);"
+              onmousedown="event.preventDefault();"></button>
+            <button id="mbtnTextHighlight5" class="color-swatch" style="background: var(--note-highlight-color-5);"
+              onmousedown="event.preventDefault();"></button>
+            <button id="mbtnTextHighlight6" class="color-swatch" style="background: var(--note-highlight-color-6);"
+              onmousedown="event.preventDefault();"></button>
+            <button id="mbtnTextHighlight7" class="color-swatch" style="background: var(--note-highlight-color-7);"
+              onmousedown="event.preventDefault();"></button>
+            <button id="mbtnTextHighlight8" class="color-swatch" style="background: var(--note-highlight-color-8);"
+              onmousedown="event.preventDefault();"></button>
+          </div>
+        </div>
+      </div>
+      <div class="page-dropdown-item">
+        <button id="mbtnAlign" class="page-dropdown-header" title="Alignment">Align</button>
+        <div class="page-dropdown-content">
+          <button id="mbtnLeftTextAlign" title="Align to the left">Left</button>
+          <button id="mbtnCenterTextAlign" title="Align to the center">Center</button>
+          <button id="mbtnRightTextAlign" title="Align to the right">Right</button>
+          <button id="mbtnJustifyTextAlign" title="Justify text">Justify</button>
+        </div>
+      </div>
+      <button id="mbtnCancelStyle" class="page-dropdown-close" title="Close the menu">❌</button>
+    </div>
+    <div id="insertDropdown" class="page-dropdown">
+      <div class="page-dropdown-title">Insert</div>
+      <div class="page-dropdown-item">
+        <button id="mbtnLinks" class="page-dropdown-header" title="Insert links">Link</button>
+        <div class="page-dropdown-content">
+          <button id="mbtnLinkText" title="Select a text to make link" disabled>🌎 Text Link</button>
+          <button id="mbtnLinkImage" title="Insert image link">📷 Image Link</button>
+          <button id="mbtnLinkAudio" title="Insert audio link">🔈 Audio Link</button>
+          <button id="mbtnLinkVideo" title="Insert video link">🎞 Video Link</button>
+          <button id="mbtnLinkPdf" title="Insert PDF file link">📕 PDF Link</button>
+        </div>
+      </div>
+      <div class="page-dropdown-item">
+        <button id="mbtnEmbed" class="page-dropdown-header" title="Embed contents">Embed</button>
+        <div class="page-dropdown-content">
+          <button id="mbtnEmbedWeb" title="Embed web page or HTML object">🌎 Web</button>
+
+          <div class="fileUpload">
+            <label for="mimageUpload" title="Embed image file">📷 Image</label>
+            <input type="file" id="mimageUpload" accept="image/*" onclick="this.value = null">
+          </div>
+
+          <div class="fileUpload">
+            <label for="maudioUpload" title="Embed audio file">🔈 Audio</label>
+            <input type="file" id="maudioUpload" accept="audio/*" onclick="this.value = null">
+          </div>
+
+          <div class="fileUpload">
+            <label for="mpdfUpload" title="Embed PDF file">📕 PDF</label>
+            <input type="file" id="mpdfUpload" accept=".pdf" onclick="this.value = null">
+          </div>
+
+          <div class="fileUpload">
+            <label for="mepubUpload" title="Embed ePub file">📖 ePub</label>
+            <input type="file" id="mepubUpload" accept=".epub" onclick="this.value = null">
+          </div>
+
+          <button id="mbtnEmbedMath" title="Insert math expression">Σ Math</button>
+        </div>
+      </div>
+      <div class="page-dropdown-item">
+        <button id="mbtnTable" class="page-dropdown-header" title="Add table">Table</button>
+        <div class="page-dropdown-content">
+          <button id="mbtnSimpleTable" title="Add simple table">Simple Table</button>
+          <button id="mbtnHeadlessTable" title="Add headless table">Headless Table</button>
+        </div>
+      </div>
+      <button id="mbtnCancelInsert" class="page-dropdown-close" title="Close the menu">❌</button>
+    </div>
+    <div id="msaveDropdown" class="page-dropdown">
+      <div class="page-dropdown-title">Save & Share</div>
+      <div class="page-dropdown-item">
+        <div class="page-dropdown-content-open">
+          <button id="mbtnSave">Save</button>
+          <button id="mbtnSaveTo">Save To...</button>
+          <button id="mbtnShare">Share</button>
+          <button id="mbtnSaveReadOnly">Save as Read-Only</button>
+          <button id="mbtnSaveToReadOnly">Save To as Read-Only</button>
+          <button id="mbtnShareReadOnly">Share as Read-Only</button>
+        </div>
+      </div>
+      <button id="mbtnCancelSave" class="page-dropdown-close" title="Close the menu">❌</button>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" class="epub-loading-script"></script>
+  <script src="https://github.com/futurepress/epub.js/releases/download/v0.3.88/epub.min.js" class="epub-loading-script"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathup/dist/browser/mathup.iife.min.js" class="math-loading-script"></script>
+  <script class="content-editing-script">
+    const editor = document.getElementById("editor");
+
+    // Helper: Places the caret at a given node and offset.
+    function setCaret(node, pos) {
+
+      const selection = window.getSelection();
+      const range = document.createRange();
+      range.setStart(node, pos);
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      return range;
+    }
+
+    function editorInsertBefore(childNode, siblingNodeId) {
+
+      if (childNode && !editor.contains(childNode)) {
+
+        const siblingNode = siblingNodeId ? document.getElementById(siblingNodeId) : null;
+
+        if (!siblingNode || editor.contains(siblingNode)) {
+
+          editor.insertBefore(childNode, siblingNode);
+
+          if (childNode.classList?.contains("text-block") ||
+              childNode.classList?.contains("code-block")) {
+            if (childNode.classList?.contains("text-block")) setCaret(childNode, 0);
+            else setCaret(childNode.querySelector("code"), 0);
+          }
+        }
+      }
+    }
+
+    function editorRemoveChild(childNode, siblingNodeId) {
+
+      if (childNode && editor.contains(childNode)) {
+
+        if (childNode.classList?.contains("text-block") ||
+            childNode.classList?.contains("code-block")) {
+
+          let p = childNode.previousElementSibling;
+
+          while (p &&
+                 !p.classList?.contains("text-block") &&
+                 !p.classList?.contains("code-block")) {
+            p = p.previousElementSibling;
+          }
+          editor.removeChild(childNode);
+
+          if (p) {
+            if (p.classList?.contains("text-block")) setCaret(p, 0);
+            else setCaret(p.querySelector("code"), 0);
+          }
+          else {
+            editor.focus();
+          }
+        } else {
+
+          editor.removeChild(childNode);
+          editor.focus();
+        }
+      }
+    }
+
+    function handleXRemoveEvent(event) {
+
+      const parentNode = event.target?.parentNode?.parentNode;
+
+      if (parentNode === editor) {
+
+        const childNode = event.target?.parentNode;
+        const childSibling = childNode?.nextElementSibling;
+        editor.UNDO_STACK.push(editorRemoveChild, editorInsertBefore,
+                               childNode, childSibling?.id);
+      }
+    }
+  </script>
+</body>
+</html>
